@@ -87,8 +87,5 @@ void showData(float volt,float ampe ,float PF,float wat,float Frequency,float En
       Serial.println("kwh");
       Serial.println();
 }
-bool resetPower(){
 
-  
-}
 

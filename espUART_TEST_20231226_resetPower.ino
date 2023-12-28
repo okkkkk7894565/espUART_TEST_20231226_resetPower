@@ -3,9 +3,38 @@
 #include "main.h"
 #include "get_power.h"
 #include "reset_button.h"
-
-
-
+void nhayLedReset();
+void nhayLedReset() {
+  int count = 0;
+  while (count <= 5) {
+    digitalWrite(ledRS, 1);
+    delay(200);
+    digitalWrite(ledRS, LOW);
+    delay(200);
+    count++;
+  }
+  if (pzem.resetEnergy()) {
+    count = 0;
+    while (count <= 5) {
+      digitalWrite(ledRS, 1);
+      delay(200);
+      digitalWrite(ledRS, LOW);
+      delay(200);
+      count++;
+    }
+  } else {
+    count = 0;
+    while (count <= 2) {
+      digitalWrite(ledRS, 1);
+      delay(1000);
+      digitalWrite(ledRS, LOW);
+      delay(800);
+      count++;
+    }
+    Serial.println("Can not reset power");
+    delay(300);
+  }
+}
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -16,22 +45,21 @@ void setup() {
   pinMode(ledRS, OUTPUT);
   pinMode(ledRSPre, OUTPUT);
 
-  delay(100);
+  delay(300);
   Serial.println("ESP:Welcome!!!");
   Serial.println("ESP:Receiver data");
   Serial.println();
   Serial.print("First time Btt Reset:");
-  delay(100);
   Serial.println(digitalRead(RsBtt));
   Serial.println();
-  delay(100);
+  delay(300);
 
   // get btt reset status >> meet requirment : return 1 ; not meet requirment : return 0
-  int buttonFlag = readRsBtt(5000,0);
-  
+  int buttonFlag = readRsBtt(5000, 1);
+
   Serial.print("ButtonFlag:");
   Serial.println(buttonFlag);
-  
+
   if (buttonFlag == 1) {
     digitalWrite(ledRSPre, 0);
     nhayLedReset();
