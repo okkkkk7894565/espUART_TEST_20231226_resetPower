@@ -1,10 +1,4 @@
-
-int readRsBtt();
-void nhayLedReset();
-void demoReset();
-
 int readRsBtt(float press_button_duration, int button_status_will_get) {
-
   if (digitalRead(RsBtt) == button_status_will_get) {
     delay(20);  //chong doi phim
     //kiểm tra trạng thái của btt ?= trạng thái muốn bắt ko
@@ -29,26 +23,7 @@ int readRsBtt(float press_button_duration, int button_status_will_get) {
   }
   return 0;
 }
-void nhayLedReset() {
-  int count = 0;
-  while (count <= 5) {
-    digitalWrite(ledRS, 1);
-    delay(200);
-    digitalWrite(ledRS, LOW);
-    delay(200);
-    count++;
-  }
-  // {Reset statement}
-  demoReset();
-  count = 0;
-  while (count <= 5) {
-    digitalWrite(ledRS, 1);
-    delay(200);
-    digitalWrite(ledRS, LOW);
-    delay(200);
-    count++;
-  }
-}
+
 void demoReset() {
   digitalWrite(LED_BUILTIN, 1);
   delay(200);
