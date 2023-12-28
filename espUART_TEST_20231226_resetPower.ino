@@ -1,98 +1,101 @@
 // COM10 in lap COM5 in PC
-/////update reset 26/12/2023
+/////update reset 26/12/2023 >> in clone git >> can update
 #include "main.h"
 #include "get_power.h"
 #include "reset_button.h"
-void nhayLedReset();
-void nhayLedReset() {
-  int count = 0;
-  while (count <= 5) {
-    digitalWrite(ledRS, 1);
-    delay(200);
-    digitalWrite(ledRS, LOW);
-    delay(200);
-    count++;
-  }
-  if (pzem.resetEnergy()) {
-    count = 0;
-    while (count <= 5) {
-      digitalWrite(ledRS, 1);
-      delay(200);
-      digitalWrite(ledRS, LOW);
-      delay(200);
-      count++;
-    }
-  } else {
-    count = 0;
-    while (count <= 2) {
-      digitalWrite(ledRS, 1);
-      delay(1000);
-      digitalWrite(ledRS, LOW);
-      delay(800);
-      count++;
-    }
-    Serial.println("Can not reset power");
-    delay(300);
-  }
-}
+
+// Header for function
+void resetEneryByBtt();
+void resetWifiByBtt();
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
-  pinMode(LED_PIN1, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
-  pinMode(RsBtt, INPUT_PULLUP);
+  pinMode(RsBtt, INPUT);
+  pinMode(RsBttForWiFi, INPUT);
+
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ledRS, OUTPUT);
   pinMode(ledRSPre, OUTPUT);
-
+  pinMode(LED_PIN1, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
   delay(300);
+
+
   Serial.println("ESP:Welcome!!!");
   Serial.println("ESP:Receiver data");
   Serial.println();
-  Serial.print("First time Btt Reset:");
+
+  //-------------- Reset Power----------------------
+  Serial.print("BTTRsPw:");
   Serial.println(digitalRead(RsBtt));
-  Serial.println();
   delay(300);
 
   // get btt reset status >> meet requirment : return 1 ; not meet requirment : return 0
-  int buttonFlag = readRsBtt(5000, 1);
+  int flagForRsPower = readRsBtt(5000, 1);
+  delay(300);
 
-  Serial.print("ButtonFlag:");
-  Serial.println(buttonFlag);
+  Serial.print("flagForRsPower:");
+  Serial.println(flagForRsPower);
+  delay(100);
 
-  if (buttonFlag == 1) {
+  if (flagForRsPower == 1) {
     digitalWrite(ledRSPre, 0);
-    nhayLedReset();
+    resetEneryByBtt();
   } else {
-    Serial.println("ESP: Break !!!!!!");
+    Serial.println("ESP: Break Reset Power !!!!!!");
   }
+  Serial.println();
 
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.println(WIFI_SSID);
+  //-------------- Reset Wifi----------------------
+  Serial.print("RsBttForWiFi:");
+  Serial.println(digitalRead(RsBttForWiFi));
+  delay(300);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Connecting to Wi-Fi: ");
-    for (int j = 0; j <= 15; j++) {
-      Serial.print(".");
-      delay(300);
-    }
-    Serial.println("");
+  int flagForRsWifi = readRsBttForWifi(4000, 1);
+
+  Serial.print("flagForRsWifi:");
+  Serial.println(flagForRsWifi);
+
+  if (flagForRsWifi == 1) {
+    digitalWrite(ledRSPre, 0);
+    resetWifiByBtt();
+  } else {
+    Serial.println("ESP: Break Reset Wifi !!!!!!");
   }
+  Serial.println();
+  //---------------------------------------------------
+
+  //show wifi infor
+  wifiManager.autoConnect("AutoConnectAP", "12345678");
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
 
+  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  // Serial.println(WIFI_SSID);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   Serial.print("Connecting to Wi-Fi: ");
+  //   for (int j = 0; j <= 15; j++) {
+  //     Serial.print(".");
+  //     delay(300);
+  //   }
+  //   Serial.println("");
+  // }
+  // Serial.println();
+  // Serial.print("Connected with IP: ");
+  // Serial.println(WiFi.localIP());
+
+
+
   // /* Assign the api key (required) */
   config.api_key = API_KEY;
-
   /* Assign the RTDB URL (required) */
   config.database_url = DATABASE_URL;
-
   /* Sign up */
   if (Firebase.signUp(&config, &auth, "", "")) {
     Serial.println("Conected to fibase Successfull");
     signupOK = true;
-
   } else {
     Serial.printf("%s\n", config.signer.signupError.message.c_str());
   }
@@ -149,4 +152,66 @@ void loop() {
       }
     }
   }
+}
+
+
+//----------------------------------- Reset Function -------------------------------------
+
+void resetEneryByBtt() {
+  int count = 0;
+  while (count <= 5) {
+    digitalWrite(ledRS, 1);
+    delay(200);
+    digitalWrite(ledRS, LOW);
+    delay(200);
+    count++;
+  }
+  if (pzem.resetEnergy()) {
+    count = 0;
+    while (count <= 5) {
+      digitalWrite(ledRS, 1);
+      delay(200);
+      digitalWrite(ledRS, LOW);
+      delay(200);
+      count++;
+    }
+  } else {
+    count = 0;
+    while (count <= 2) {
+      digitalWrite(ledRS, 1);
+      delay(1000);
+      digitalWrite(ledRS, LOW);
+      delay(800);
+      count++;
+    }
+    Serial.println("Can not reset power");
+    delay(300);
+  }
+}
+
+void resetWifiByBtt() {
+  int count = 0;
+  while (count <= 5) {
+    digitalWrite(ledRS, 1);
+    delay(200);
+    digitalWrite(ledRS, LOW);
+    delay(200);
+    count++;
+  }
+  Serial.println("ESP:Starting reset WiFi");
+  //reset settings - for testing
+  wifiManager.resetSettings();
+  delay(200);
+  wifiManager.autoConnect("AutoConnectAP", "12345678");
+
+  count = 0;
+  while (count <= 5) {
+    digitalWrite(ledRS, 1);
+    delay(200);
+    digitalWrite(ledRS, LOW);
+    delay(200);
+    count++;
+  }
+  //exit after config instead of connecting
+  wifiManager.setBreakAfterConfig(true);
 }
