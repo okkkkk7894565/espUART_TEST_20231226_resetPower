@@ -1,24 +1,46 @@
 // COM10 in lap COM5 in PC
 /////update reset 26/12/2023 >> in clone git >> can update
+#include <Arduino.h>
 #include "main.h"
 #include "get_power.h"
 #include "reset_button.h"
 
-// Header for function
-void resetEneryByBtt();
-void resetWifiByBtt();
+// //th1
+// int RsBttForWiFi = D0;
+// int RsBttForEner = D2;
+// // >>>>>> RsBttForWiFi==0 ; RsBttForEner==1 >> rs ener ;
+
+
+// //th2
+// int RsBttForWiFi = D2;
+// int RsBttForEner = D0;
+// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==0;
+
+
+// //th3
+// int RsBttForWiFi = D2;
+// int RsBttForEner = D3;
+// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==1;
+
+// //th3
+// int RsBttForWiFi = D3;
+// int RsBttForEner = D2;
+// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==1;
+
+// ko gắn trở khi reset bị đẩy lên mức cao >>> vấn đề vi xử lý ????
+// khai báo chân D0 và D2 >> chân Đằng sau bị đẩy lên cao(D2); D2 và D3 >>> D3 bị đẩy lên cao
+
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
-  pinMode(RsBtt, INPUT);
   pinMode(RsBttForWiFi, INPUT);
+  pinMode(RsBttForEner, INPUT);
 
-  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ledRS, OUTPUT);
   pinMode(ledRSPre, OUTPUT);
-  pinMode(LED_PIN1, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
+
   delay(300);
 
 
@@ -27,8 +49,8 @@ void setup() {
   Serial.println();
 
   //-------------- Reset Power----------------------
-  Serial.print("BTTRsPw:");
-  Serial.println(digitalRead(RsBtt));
+  Serial.print("RsBttForEner:");
+  Serial.println(digitalRead(RsBttForEner));
   delay(300);
 
   // get btt reset status >> meet requirment : return 1 ; not meet requirment : return 0
@@ -175,6 +197,7 @@ void resetEneryByBtt() {
       delay(200);
       count++;
     }
+     Serial.println("PZEM:Reset Power Succesfull !!!");
   } else {
     count = 0;
     while (count <= 2) {
@@ -184,7 +207,7 @@ void resetEneryByBtt() {
       delay(800);
       count++;
     }
-    Serial.println("Can not reset power");
+    Serial.println("PZEM:Can not reset power");
     delay(300);
   }
 }
