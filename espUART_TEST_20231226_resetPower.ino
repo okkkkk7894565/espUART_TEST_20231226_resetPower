@@ -5,32 +5,6 @@
 #include "get_power.h"
 #include "reset_button.h"
 
-// //th1
-// int RsBttForWiFi = D0;
-// int RsBttForEner = D2;
-// // >>>>>> RsBttForWiFi==0 ; RsBttForEner==1 >> rs ener ;
-
-
-// //th2
-// int RsBttForWiFi = D2;
-// int RsBttForEner = D0;
-// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==0;
-
-
-// //th3
-// int RsBttForWiFi = D2;
-// int RsBttForEner = D3;
-// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==1;
-
-// //th3
-// int RsBttForWiFi = D3;
-// int RsBttForEner = D2;
-// // >>>>>> RsBttForWiFi==1 >>> rs wifi ; RsBttForEner==1;
-
-// ko gắn trở khi reset bị đẩy lên mức cao >>> vấn đề vi xử lý ????
-// khai báo chân D0 và D2 >> chân Đằng sau bị đẩy lên cao(D2); D2 và D3 >>> D3 bị đẩy lên cao
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
@@ -41,7 +15,6 @@ void setup() {
   pinMode(ledRS, OUTPUT);
   pinMode(ledRSPre, OUTPUT);
   delay(300);
-  Serial.begin(115200);
 
   //--------------------Show ESP-INFOR ------------------------------
   Serial.println("ESP:Welcome!!!");
@@ -65,7 +38,7 @@ void setup() {
   delay(300);
 
   // get btt reset status >> meet requirment : return 1 ; not meet requirment : return 0
-  int flagForRsPower = readRsBtt(5000, 1);
+  flagForRsPower = readRsBtt(5000, 1);
   delay(300);
 
   Serial.print("flagForRsPower:");
@@ -79,13 +52,12 @@ void setup() {
     Serial.println("ESP: Break Reset Power !!!!!!");
   }
   Serial.println();
-
   //-------------- Reset Wifi----------------------
   Serial.print("RsBttForWiFi:");
   Serial.println(digitalRead(RsBttForWiFi));
   delay(300);
 
-  int flagForRsWifi = readRsBttForWifi(4000, 1);
+  flagForRsWifi = readRsBttForWifi(4000, 1);
 
   Serial.print("flagForRsWifi:");
   Serial.println(flagForRsWifi);
@@ -97,15 +69,13 @@ void setup() {
     Serial.println("ESP: Break Reset Wifi !!!!!!");
   }
   Serial.println();
-  //---------------------------------------------------
-
+  //-----------------------------------------------
   //show wifi infor
   wifiManager.autoConnect(esp_ID_toChar, "12345678");
   Serial.println();
   Serial.print("Connected with IP: ");
   Serial.println(WiFi.localIP());
-
-
+  //-----------------------------------------------
   // /* Assign the api key (required) */
   config.api_key = API_KEY;
   /* Assign the RTDB URL (required) */
@@ -125,56 +95,75 @@ void setup() {
 
 void loop() {
   Path = "METTER/" + espID + "/Data";
-  // ---------get data ---------
-  volt = getVol();
-  ampe = getAmp();
-  PF = getPF();
-  wat = getWat();
-  Frequency = getFre();
-  Energy = getEnergy();
-  // ------------------------------------------
-
-  // ---------Truyen du lieu len firebase----------------------------------------------------------------
   if (millis() - sendDataPrevMillis > 3000) {
     sendDataPrevMillis = millis();
+    // ---------get data -----------------------
+    volt = getVol();
+    ampe = getAmp();
+    PF = getPF();
+    wat = getWat();
+    Frequency = getFre();
+    Energy = getEnergy();
+    showData(volt, ampe, PF, wat, Frequency, Energy);
+    // ----------------------------------------------
     if (Firebase.ready() && signupOK) {
-      showData(volt, ampe, PF, wat, Frequency, Energy);
-      //------------------------------------------------------
-      digitalWrite(ledRSPre, 0);  // tắt báo truyền dữ liệu lỗi
-      digitalWrite(ledRS, 1);     // báo chuẩn bị truyền dữ  liệu
-      delay(100);
-      //-----------------------------------------------------
+      //connect fbdo success
       json.set("Vol", volt / 1.0);
       json.set("ampe", ampe);
       json.set("PF", PF);
       json.set("wat", wat);
       json.set("Frequency", Frequency);
       json.set("Energy", Energy);
-      //-----------------------------------------------------
+      // pre send data after connect success
+      digitalWrite(ledRS, 1);  
+      delay(200);
       if (Firebase.RTDB.setJSON(&fbdo, Path, &json)) {
         Serial.println("PASSED");
         Serial.println("PATH: " + fbdo.dataPath());
         Serial.println("TYPE: " + fbdo.dataType());
-        digitalWrite(ledRS, 0);  // báo done truyền dữ  liệu
-        delay(200);
+        flagSendData = 1;
       } else {
         Serial.println("FAILED");
         Serial.println("REASON: " + fbdo.errorReason());
+        flagSendData = 0;
       }
-      //-----------------------------------------------------
-      digitalWrite(ledRS, 0);  // tắt led chuẩn bị truyền dữ  liệu
-      delay(200);
+      fbErr(flagSendData);
+      //done send data to fbdo >> show result of send data process
     } else {
-      showData(volt, ampe, PF, wat, Frequency, Energy);
-      digitalWrite(ledRS, 0);     // 0 chuẩn bị truyền dữ  liệu
-      digitalWrite(ledRSPre, 1);  // 1 báo truyền dữ liệu lỗi
+      //connect fbdo fail >> turn on ledRSPre
+      digitalWrite(ledRS, 0);     
+      digitalWrite(ledRSPre, 1);  
       delay(100);
     }
+    // Nếu trong quá trình truyền dữ liệu lên fbdo >> lỗi >> vẫn in ra màn hình và chớp led báo lỗi mạng
+    // Nếu kết nối lại thì sẽ tắt led báo lỗi mạng
+    digitalWrite(ledRSPre, 0);  // tắt báo truyền dữ liệu lỗi
+    delay(100);
   }
-  // ---------Truyen du lieu len firebase----------------------------------------------------------------
 }
 
 
+
+
+// ------------show result of send data process-----------------------------------------
+void fbErr(int getFlag) {
+  if (getFlag == 1) {
+    digitalWrite(ledRS, 0);  // báo done truyền dữ  liệu
+    delay(100);
+  } else {
+    // báo kết nối thành công nhưng có lỗi của Fb
+    digitalWrite(ledRS, 0);
+    delay(200);
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(ledRSPre, 1);
+      delay(100);
+      digitalWrite(ledRSPre, 0);
+      digitalWrite(ledRS, 1);
+      delay(100);
+      digitalWrite(ledRS, 0);
+    }
+  }
+}
 //----------------------------------- Reset Function -------------------------------------
 void resetEneryByBtt() {
   int count = 0;

@@ -32,7 +32,7 @@ int firstStatus, ledss;
 unsigned long sendDataPrevMillis = 0, getButtonData = 0;
 float startTime, dur, starTimeReadBtt;
 bool signupOK = false;
-int buttonFlag;
+int flagForRsWifi,flagForRsPower,flagSendData;
 String id = "minh38384";
 String Path,espID;
 char esp_ID_toChar[100];
