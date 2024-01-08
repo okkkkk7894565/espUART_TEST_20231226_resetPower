@@ -1,4 +1,4 @@
-# espUART_TEST_20231226_resetPower -- done button reset power
+# espUART_TEST_20231226_resetPower -- done button reset power,wifi  
 Hướng dẫn dùng nút reset power:  
 1)Nhấn giữ nút reset power  
 2)Nhấn reset button của esp (rút nguồn và cắm lại-- giữ nút reset power trong cả quá trình)  
