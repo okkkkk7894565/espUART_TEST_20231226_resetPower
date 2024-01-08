@@ -6,8 +6,8 @@ Hướng dẫn dùng nút reset power:
 4)Sau 5s đèn vàng tắt >> đèn xanh nhấp nháy 5 lần >> chuẩn bụ reset >> nháy 5 lần nữa: reset thành công (nếu nháy 2 lần chậm >> pzem không thể reset)  
 <6) Nếu đèn vàng tắt nhưng đèn xanh ko sáng >> ko bấm nút đủ 5s >> tắt tín hiệu reset và chạy tiếp tục chương trình> 
 
- Tín hiệu đèn 
- 1, Đèn xanh lá cây nhấp nháy, kết nối mạng thành công và truyền dữ liệu thành công 
- 2, Đèn xanh lá cây sáng liên tục kết nối mạng không ổn định >> quá trình truyền bị ngẽn mạng >> mạng kém 
- 3, Đèn xanh lục nhấp nháy, kết nối mạng không thành công, không thể ghi dữ lêị lên Fbdo 
- 4, Đèn xanh lục sáng rồi đèn xanh lục và đèn xanh lá nhấp nháy xen kẽ, kết nối mạng thành công nhưng có lỗi trong quá trình ghi lên Fbdo 
+  Tín hiệu đèn  
+  1, Đèn xanh lá cây nhấp nháy, kết nối mạng thành công và truyền dữ liệu thành công 
+  2, Đèn xanh lá cây sáng liên tục kết nối mạng không ổn định >> quá trình truyền bị ngẽn mạng >> mạng kém 
+  3, Đèn xanh lục nhấp nháy, kết nối mạng không thành công, không thể ghi dữ lêị lên Fbdo 
+  4, Đèn xanh lục sáng rồi đèn xanh lục và đèn xanh lá nhấp nháy xen kẽ, kết nối mạng thành công nhưng có lỗi trong quá trình ghi lên Fbdo 
